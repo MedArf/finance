@@ -1,0 +1,9 @@
+{% if all_assets %}
+    <ul>
+    {%for asset in all_assets%}
+    <li><a href="{% url 'trading_dashboard:asset_details' asset_id=asset.id%}">{{ asset.name}}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No asset details are available.</p>
+{% endif %}
