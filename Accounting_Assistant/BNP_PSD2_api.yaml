@@ -1,0 +1,2150 @@
+openapi: 3.0.0
+info:
+   version: 2.0.0
+   x-stet-version: 1.4.0.47
+   title: Account Information (PSD2 STET Mock)
+   x-generate-global-scope: true
+   description: "## Overview\nThird Party Providers can consume the PSD2 AISP API\
+      \ to retrieve account information from Connexis Cash.\n\nOur API allows TPPs\
+      \ to access Account information on behalf of CONNEXIS CASH users. This API intends\
+      \ to provide an interface between:\n\n+ Account Servicing Payment Service Providers\
+      \ (**ASPSP**)\n\n+ Third Party (Payment Service) Providers (**TPP**)\n\n\nTPP\
+      \ act with Account Information Service Providers role (**AISP**)\n\n\nThe Payment\
+      \ Service User (**PSU**) is the owner of the accounts held by the ASPSP and\
+      \ gives accreditations to the TPP in order to access his accounts information\
+      \ or initiates payment from these accounts.\n\n\nTPPs can now offer accounts\
+      \ information services to customers using CONNEXIS CASH eBanking solution.\n\
+      \n\n\n## User Consent\n\n\nCONNEXIS CASH chose the Full-AISP model (A1 from\
+      \ the STET documentation) : CONNEXIS CASH does not require to be informed of\
+      \ the details of the PSU consent. Whatever the AISP request, the CONNEXIS CASH\
+      \ will respond, being unable to check the compliance of the request against\
+      \ the user choices.\n*The PUT/Consent request is only applicable in the Mixed\
+      \ model (A2 of the STET documentation), CONNEXIS Cash will not implement such\
+      \ request in the sandbox environment and in the production environment. In accordance\
+      \ with the PSD2, a TPP and a PSU must have a contractual relationship.*\n\n\n\
+      \n\n## API Architecture\n\n\nThe API is designed on a REST FULL model using\
+      \ JSON structures. Our API is based on STET (1.4.0.47) format.\n## Sandbox\n\
+      A sandbox environment is available to facilitate the onboarding and learning\
+      \ process of the TPP.\n\nThose APIs return fake data. No sensitive information\
+      \ shall be shared through the sandbox environment.\n\nOn the sandbox environment,\
+      \ Client_credential is the only OAuth 2.0 flow available.\n\n## Production\n\
+      The URL of the production environment is **https://psd2.api.cib.bnpparibas.com/gb-account-information-psd2-stet**.\
+      \ \n\nThe Authorization code url is : **https://api.cib.bnpparibas.com/oauth2/v1/authorize?client_id={cliend_id}&response_type=code&scope={scopes}&redirect_uri={redirect_uri}&state={state}**.\n\
+      \nThe TPP must use the OAuth2 Authorization Code Grant flow for AISP, PISP or\
+      \ PIISP scope.\nThe production environment can only be accessed according to\
+      \ the full STET standard and requires a qwac certificate delivered by a QTSP.\n\
+      For a manual onboarding, the TPP should provide its QWAC certificate, callback\
+      \ URL, and EBA reference code to **dl.cib.api.psd2.support@bnpparibas.com**\n\
+      ## Support\nNeed support? We are here to help you\n\nIn case of technical issue\
+      \ between you as TPP and the bank, please contact us at the following email\
+      \ address : **dl.cib.api.psd2.support@bnpparibas.com**\nPlease be aware that\
+      \ the client can always contact us via his usual BNPP representative as the\
+      \ issue might come from a wrong set up in the client contract. \n## Fallback\
+      \ Process\nAs part of its legal obligations under PSD2, BNPP CIB implements\
+      \ a fallback mechanism. \nThis fallback solution is not available in sandbox\
+      \ environment with fake data.\n\n**Prerequisite**\n\nThis process allows developers\
+      \ to use fallback mechanism only in case the dedicated API is not available\
+      \ and in compliance with the regulation (EU) 2018/389.\n\n**URL Fallback**\n\
+      \nThe Fallback URL for TPP is the same URL as Connexis Cash customers : https://connexis.bnpparibas.com/\n\
+      \n**TPP identification** \n\nThe same requirements regarding identification\
+      \ of TPPs with QWACs apply irrespective of whether the TPPs are accessing the\
+      \ users’ payment accounts via the dedicated interface or via Connexis Cash.\
+      \ The identification of TPPs towards Connexis Cash should be based on the use\
+      \ of qualified certificates for website authentication (QWACs).\n\n**Strong\
+      \ customer authentication through Connexis Cash**\n\nTo access Connexis Cash,\
+      \ the user have to enter his customer credentials. TPP developers can connect\
+      \ to our online banking with this customer credentials in order to retrieve\
+      \ PSD2 data.  \n"
+servers:
+-  url: https://api.sandbox.cib.bnpparibas.com/gb-account-information-psd2-stet-mock
+   description: PROD_INTERNET
+paths:
+   /v2/accounts:
+      get:
+         operationId: accountsGet
+         tags:
+         - AISP
+         summary: Retrieval of the PSU accounts (AISP)
+         description: "### Description\n\nThis call returns all payment accounts that\
+            \ are relevant to the PSU on behalf of whom the AISP is connected.\n\n\
+            \n*This requests makes available all the accounts which are available\
+            \ today in the Reporting module of Connexis Cash. The returned accounts\
+            \ might differ from the ones used for payment, and should therefore not\
+            \ be used for Payment Initiation.*\n\n\nThanks to HYPERMEDIA, each account\
+            \ is returned with the links aiming to ease access to the relevant transactions\
+            \ and balances.\n\n\nThe result may be subject to pagination (i.e. retrieving\
+            \ a partial result in case of having too many results) through a set of\
+            \ pages by the ASPSP. Thereafter, the AISP may ask for the first, next,\
+            \ previous or last page of results.\n\n\n*Attention : the « name » account\
+            \ field is not necessarily an IBAN, this name is customizable by the client.\
+            \ Furthermore, some optional fields present in the STET documentation\
+            \ are not communicated through the API because they are currently not\
+            \ transmitted to our clients  or they are specific to the retail segment\
+            \ (psuStatus, linkedAccount, product)*\n\n\n### Prerequisites\n\n- The\
+            \ TPP has been registered by the Registration Authority for the AISP role.\
+            \ (not mandatory for Sandbox)\n- The TPP and the PSU have a contract that\
+            \ has been enrolled by the ASPSP (not mandatory for Sandbox)         \
+            \  \n    - At this step, Connexis Cash has delivered an OAUTH2 access\
+            \ token to the TPP via OAuth2 flow : Authorization Code Grant (for production)\
+            \ or Client Credential (for sandbox).\n\n        For more details about\
+            \ OAuth2 flow, please click on the links below : \n\n        - Authorization\
+            \ Code Grant flow : https://developers.cib.bnpparibas.com/docs/auth2-ac-psd2\n\
+            \n        - Client Credential flow : https://developers.cib.bnpparibas.com/docs/auth2-cc\n\
+            \n- The TPP and the ASPSP have successfully processed a mutual check and\
+            \ authentication\n- The TPP has presented its OAUTH2 access token\n- Connexis\
+            \ Cash takes into account the access token that establishes the link between\
+            \ the PSU and the AISP.\n\n### Business Flow\n\n- The TPP sends a request\
+            \ to the ASPSP for retrieving the list of the PSU payment accounts. The\
+            \ ASPSP computes the relevant PSU accounts and builds the answer as an\
+            \ accounts list.\n\n- The result may be subject to pagination in order\
+            \ to avoid an excessive result set. Each payment account will be provided\
+            \ with its characteristics.\n\n\n### Specific for the Sandbox\n\n- For\
+            \ this sandbox, **the data is fictive**, we put the account lists of a\
+            \ fictive user “ User 1” at TPP’s disposal.\n\n- The « User 1 » owns 5\
+            \ accounts : one Dutch account in EUR, one Polish account in EUR, one\
+            \ Greek account in EUR and 2 Danish accounts in DKK.\n\n- The “Signature”\
+            \ and “X Request ID” parameters will not be verified by our sandbox for\
+            \ the test. They must be not null.\n"
+         security:
+         -  OAuth2:
+            - aisp
+         parameters:
+         -  $ref: '#/components/parameters/PsuIpAddressHeader'
+         -  $ref: '#/components/parameters/PsuIpPortHeader'
+         -  $ref: '#/components/parameters/PsuHttpMethodHeader'
+         -  $ref: '#/components/parameters/PsuDateHeader'
+         -  $ref: '#/components/parameters/PsuGeoLocation'
+         -  $ref: '#/components/parameters/PsuUserAgentHeader'
+         -  $ref: '#/components/parameters/PsuRefererHeader'
+         -  $ref: '#/components/parameters/PsuAcceptHeader'
+         -  $ref: '#/components/parameters/PsuAcceptCharsetHeader'
+         -  $ref: '#/components/parameters/PsuAcceptEncodingHeader'
+         -  $ref: '#/components/parameters/PsuAcceptLanguageHeader'
+         -  $ref: '#/components/parameters/PsuDeviceId'
+         -  $ref: '#/components/parameters/DigestHeader'
+         -  $ref: '#/components/parameters/SignatureHeader'
+         -  $ref: '#/components/parameters/Correlation'
+         responses:
+            '200':
+               description: |
+                  The ASPSP return a PSU context
+                  - listing the accounts that have been made available to the AISP by the PSU and,
+                  - for each of these accounts, the further transactions that have been enabled by the PSU through HYPERMEDIA links.
+               headers:
+                  X-Request-ID:
+                     description: |
+                        Correlation header to be set in a request and retrieved in the relevant response
+                     schema:
+                        type: string
+               content:
+                  application/json:
+                     schema:
+                        $ref: '#/components/schemas/HalAccounts'
+            '204':
+               $ref: '#/components/responses/204'
+            '401':
+               $ref: '#/components/responses/401'
+            '403':
+               $ref: '#/components/responses/403'
+            '404':
+               $ref: '#/components/responses/404'
+            '405':
+               $ref: '#/components/responses/405'
+            '406':
+               $ref: '#/components/responses/406'
+            '408':
+               $ref: '#/components/responses/408'
+            '429':
+               $ref: '#/components/responses/429'
+            '500':
+               $ref: '#/components/responses/500'
+            '503':
+               $ref: '#/components/responses/503'
+   /v2/accounts/{accountResourceId}/balances:
+      get:
+         operationId: accountsBalancesGet
+         description: "### Description\n\nThis call returns a set of balances for\
+            \ a given PSU account that is specified by the AISP through an account\
+            \ resource Identification.\n\nThe answer to this request will provide\
+            \ the account balance but also other balances which are currently made\
+            \ available for clients through the Connexis Cash platform.\n\nOn the\
+            \ Connexis Cash platform the client can access Ledger (booked or available)\
+            \ and Value (booked, without intraday or available, with intraday) balances.\
+            \ Those balances will be provided in the answer to the request while complying\
+            \ with STET standards. For more information, please find below the corresponding\
+            \ table:\n\n<table>\n  <tr>\n    <th>STET</th>\n    <th>Balances code</th>\n\
+            \    <th>Connexis Balances</th>\n  </tr>\n  <tr>\n    <td><strong>CLBD</strong></td>\n\
+            \    <td>Accounting Balance</td>\n    <td><strong>Ledger Booked</strong></td>\n\
+            \  </tr>\n  <tr>\n    <td><strong>XPCD</strong></td>\n    <td>Instant\
+            \ Balance</td>\n    <td><strong>Ledger available</strong></td>\n  </tr>\n\
+            \  <tr>\n    <td><strong>VALU</strong></td>\n    <td>Value-date balance</td>\n\
+            \    <td><strong>Value Booked (without intraday)</strong></td>\n  </tr>\n\
+            \  <tr>\n    <td><strong>OTHR</strong></td>\n    <td>Other Balance</td>\n\
+            \    <td><strong>Value available (with intraday)</strong></td>\n  </tr>\n\
+            </table>\n\n*Furthermore, some optional fields present in the STET documentation\
+            \ are not communicated through the API because they are currently not\
+            \ transmitted to our clients  or they are specific to the retail segment\
+            \ (lastChangeDateTime and lastCommittedTransaction).*\n\n### Prerequisites\n\
+            - The TPP has been registered by the Registration Authority for the AISP\
+            \ role. (not mandatory for Sandbox)\n- The TPP and the PSU have a contract\
+            \ that has been enrolled by the ASPSP (not mandatory for Sandbox)    \
+            \       \n    - At this step, Connexis Cash has delivered an OAUTH2 access\
+            \ token to the TPP via OAuth2 flow : Authorization Code Grant (for production)\
+            \ or Client Credential (for sandbox).\n\n        For more details about\
+            \ OAuth2 flow, please click on the links below : \n\n        - Authorization\
+            \ Code Grant flow : https://developers.cib.bnpparibas.com/docs/auth2-ac-psd2\n\
+            \n        - Client Credential flow : https://developers.cib.bnpparibas.com/docs/auth2-cc\n\
+            \n- The TPP and the ASPSP have successfully processed a mutual check and\
+            \ authentication\n- The TPP has presented its OAUTH2 access token\n- Connexis\
+            \ Cash takes into account the access token that establishes the link between\
+            \ the PSU and the AISP.\n- The TPP has previously retrieved the list of\
+            \ available accounts for the PSU\n\n### Business Flow\n\n- The AISP requests\
+            \ the ASPSP on one of the PSU’s accounts. The ASPSP answers by providing\
+            \ a list of balances on this account.\n\n### Specific for the Sandbox\n\
+            \n- To get positive results (200 response), i.e. accessing the fake data\
+            \ provided by Connexis Cash, it is necessary to indicate a valid accountResourceId.\
+            \ In case an invalid \"accountResourceId\" is present, an error message\
+            \ will be displayed.\n\n- The list of valid accountResourceId can be obtained\
+            \ via the get/accounts request in the resourceId field or below:\n\n \
+            \ - 1306171745\n\n  - 1306171845\n\n  - 1987376645\n\n  - 19737006845\n\
+            \n  - 19737007345\n\n - The “Signature” and “X Request ID” parameters\
+            \ will not be verified by our sandbox for\nthe test. They must be not\
+            \ null.\n"
+         summary: Retrieval of an account balances report (AISP)
+         tags:
+         - AISP
+         security:
+         -  OAuth2:
+            - aisp
+         parameters:
+         -  $ref: '#/components/parameters/AccountResourceIdentification'
+         -  $ref: '#/components/parameters/PsuIpAddressHeader'
+         -  $ref: '#/components/parameters/PsuIpPortHeader'
+         -  $ref: '#/components/parameters/PsuHttpMethodHeader'
+         -  $ref: '#/components/parameters/PsuDateHeader'
+         -  $ref: '#/components/parameters/PsuGeoLocation'
+         -  $ref: '#/components/parameters/PsuUserAgentHeader'
+         -  $ref: '#/components/parameters/PsuRefererHeader'
+         -  $ref: '#/components/parameters/PsuAcceptHeader'
+         -  $ref: '#/components/parameters/PsuAcceptCharsetHeader'
+         -  $ref: '#/components/parameters/PsuAcceptEncodingHeader'
+         -  $ref: '#/components/parameters/PsuAcceptLanguageHeader'
+         -  $ref: '#/components/parameters/PsuDeviceId'
+         -  $ref: '#/components/parameters/DigestHeader'
+         -  $ref: '#/components/parameters/SignatureHeader'
+         -  $ref: '#/components/parameters/Correlation'
+         responses:
+            '200':
+               description: The ASPSP answers with a list of account balances
+               headers:
+                  X-Request-ID:
+                     description: |
+                        Correlation header to be set in a request and retrieved in the relevant response
+                     schema:
+                        type: string
+               content:
+                  application/json:
+                     schema:
+                        $ref: '#/components/schemas/HalBalances'
+            '204':
+               $ref: '#/components/responses/204'
+            '400':
+               $ref: '#/components/responses/400'
+            '401':
+               $ref: '#/components/responses/401'
+            '403':
+               $ref: '#/components/responses/403'
+            '404':
+               $ref: '#/components/responses/404'
+            '405':
+               $ref: '#/components/responses/405'
+            '406':
+               $ref: '#/components/responses/406'
+            '408':
+               $ref: '#/components/responses/408'
+            '429':
+               $ref: '#/components/responses/429'
+            '500':
+               $ref: '#/components/responses/500'
+            '503':
+               $ref: '#/components/responses/503'
+   /v2/accounts/{accountResourceId}/transactions:
+      get:
+         operationId: accountsTransactionsGet
+         description: "### Description\n\n\nThis call returns transactions for an\
+            \ account for a given PSU account that is specified by the AISP through\
+            \ an account resource identification.\n\n\nThe request may use some filter\
+            \ parameter in order to restrict the query, on a given imputation date\
+            \ range\n\n\n*As Connexis Cash does not permit its clients to filter on\
+            \ a given technical incremental identifier (optional filter AfterEntryReference\
+            \ proposed by STET), our API does not support this type of filter.*\n\n\
+            The maximum transaction history range returned is 13 months. (Note : there\
+            \ are no error messages if the query parameter “entryDateTo” of the request\
+            \ contains a date older than 13 months) .In the absence of query Parameters\
+            \ (entryDateFrom and entryDateTo), the period returned by default is 8\
+            \ days : (fromdate is -2 days and To date is + 5days).\n\n\nThe result\
+            \ may be subject to pagination (i.e. retrieving a partial result in case\
+            \ of having too many results) through a set of pages by the ASPSP.\n\n\
+            \nOptional parameters can be added by the TPP: PageSize and Page Number\
+            \ (by default, in the absence of value, the parameters are PageSize =\
+            \ 10 and Page Number = 0)\n\n\n*All fields specified by STET will be made\
+            \ available for a TPP, except the optional fields « RessourceID » and\
+            \ « entryReference ».*\n\n\n*Moreover, there is currently a technical\
+            \ identification attribute of the transaction but this one is for internal\
+            \ use only and cannot be passed to the clients.*\n*The “status” field\
+            \ is converted in order to comply with STET standards. You will find below\
+            \ the information:*\n\n- BOOK: (ISO20022 ClosingBooked) Accounted transaction\
+            \ : “B”\n\n- PDNG: (ISO20022 Expected) Instant Balance Transaction : “\
+            I”\n\n\n### Prerequisites\n\n- The TPP has been registered by the Registration\
+            \ Authority for the AISP role. (not mandatory for Sandbox)\n- The TPP\
+            \ and the PSU have a contract that has been enrolled by the ASPSP (not\
+            \ mandatory for Sandbox)           \n    - At this step, Connexis Cash\
+            \ has delivered an OAUTH2 access token to the TPP via OAuth2 flow : Authorization\
+            \ Code Grant (for production) or Client Credential (for sandbox).\n\n\
+            \        For more details about OAuth2 flow, please click on the links\
+            \ below : \n\n        - Authorization Code Grant flow : https://developers.cib.bnpparibas.com/docs/auth2-ac-psd2\n\
+            \n        - Client Credential flow : https://developers.cib.bnpparibas.com/docs/auth2-cc\n\
+            \n- The TPP and the ASPSP have successfully processed a mutual check and\
+            \ authentication\n- The TPP has presented its OAUTH2 access token\n- Connexis\
+            \ Cash takes into account the access token that establishes the link between\
+            \ the PSU and the AISP.\n- The TPP has previously retrieved the list of\
+            \ available accounts for the PSU\n\n### Business Flow\n\n\nThe AISP requests\
+            \ the ASPSP on one of the PSU’s accounts. It may specify some selection\
+            \ criteria (Date From / Date To).\n\n\nThe ASPSP answers by a set of transactions\
+            \ that matches the query.\n\n\nThe result may be subject to pagination\
+            \ in order to avoid an excessive result set.\n\n\n### Specific for the\
+            \ Sandbox\n\n- To get positive results (200 response) i.e. accessing the\
+            \ fake data provided by Connexis Cash, it is necessary to indicate a valid\
+            \ accountResourceId. In case of invalid accountResourceId, un error message\
+            \ is displayed.\n\n- The list of valid accountResourceId can be retrieved\
+            \ via the get/accounts request in the resourceId field or below :\n\n\
+            <table>\n  <tr>\n    <th>Account Ressource ID</th>\n    <th>Transactions</th>\n\
+            \  </tr>\n  <tr>\n    <td>1306171745</td>\n    <td>00</td>\n  </tr>\n\
+            \  <tr>\n    <td>1306171845</td>\n    <td>10</td>\n  </tr>\n  <tr>\n \
+            \   <td>1987376645</td>\n    <td>02</td>\n  </tr>\n  <tr>\n    <td>19737006845</td>\n\
+            \    <td>00</td>\n  </tr>\n  <tr>\n    <td>19737007345</td>\n    <td>09</td>\n\
+            \  </tr>\n</table>\n- Among the proposed accounts, 19737007345 and 1987376645\
+            \ have an associated transactions list (10 transactions for 1306171845\
+            \ and 2 transactions for 1987376645).\n- For the sandbox, there will be\
+            \ no pagination in the result.\n- The “Signature” and “X Request ID” parameters\
+            \ will not be verified by our sandbox for the test. They must be not null.\n\
+            - The date format is yyyy-mm-dd\n"
+         summary: Retrieval of an account transaction set (AISP)
+         security:
+         -  OAuth2:
+            - aisp
+         tags:
+         - AISP
+         parameters:
+         -  $ref: '#/components/parameters/AccountResourceIdentification'
+         -  $ref: '#/components/parameters/FromImputationDate'
+         -  $ref: '#/components/parameters/ToImputationDate'
+         -  $ref: '#/components/parameters/pageNumber'
+         -  $ref: '#/components/parameters/pageSize'
+         -  $ref: '#/components/parameters/PsuIpAddressHeader'
+         -  $ref: '#/components/parameters/PsuIpPortHeader'
+         -  $ref: '#/components/parameters/PsuHttpMethodHeader'
+         -  $ref: '#/components/parameters/PsuDateHeader'
+         -  $ref: '#/components/parameters/PsuGeoLocation'
+         -  $ref: '#/components/parameters/PsuUserAgentHeader'
+         -  $ref: '#/components/parameters/PsuRefererHeader'
+         -  $ref: '#/components/parameters/PsuAcceptHeader'
+         -  $ref: '#/components/parameters/PsuAcceptCharsetHeader'
+         -  $ref: '#/components/parameters/PsuAcceptEncodingHeader'
+         -  $ref: '#/components/parameters/PsuAcceptLanguageHeader'
+         -  $ref: '#/components/parameters/PsuDeviceId'
+         -  $ref: '#/components/parameters/DigestHeader'
+         -  $ref: '#/components/parameters/SignatureHeader'
+         -  $ref: '#/components/parameters/Correlation'
+         responses:
+            '200':
+               description: Complete transactions response
+               headers:
+                  X-Request-ID:
+                     description: |
+                        Correlation header to be set in a request and retrieved in the relevant response
+                     schema:
+                        type: string
+               content:
+                  application/json:
+                     schema:
+                        $ref: '#/components/schemas/HalTransactions'
+            '204':
+               $ref: '#/components/responses/204'
+            '400':
+               $ref: '#/components/responses/400'
+            '401':
+               $ref: '#/components/responses/401'
+            '403':
+               $ref: '#/components/responses/403'
+            '404':
+               $ref: '#/components/responses/404'
+            '405':
+               $ref: '#/components/responses/405'
+            '406':
+               $ref: '#/components/responses/406'
+            '408':
+               $ref: '#/components/responses/408'
+            '429':
+               $ref: '#/components/responses/429'
+            '500':
+               $ref: '#/components/responses/500'
+            '503':
+               $ref: '#/components/responses/503'
+   /v2/trusted-beneficiaries:
+      get:
+         operationId: trustedBeneficiariesGet
+         tags:
+         - AISP
+         summary: Retrieval of the trusted beneficiaries list (AISP)
+         description: "### Description\n\nThe trusted counterparties list is considered\
+            \ as the authorized counterparties list so that a payment could be initiated\
+            \ without SCA. The list, if provided by an ASPSP, should be put at the\
+            \ AISP’s disposal as he is currently able to visualize it via the ASPSP\
+            \ online interface.\n\nIn Connexis Cash, an entity can register a counterparty\
+            \ in a list of usual counterparties. However for payment authorization,\
+            \ strong authentication (SCA) is systematically requested. **The list\
+            \ of counterparties is not a trusted list of counterparties as described\
+            \ in the RTS, this is why this request will not return any result, (200\
+            \ empty Response []).**\n\n\n - The “Signature” and “X Request ID” parameters\
+            \ will not be verified by our sandbox for\nthe test. They must be not\
+            \ null.\n\n### Prerequisites\n\n- The TPP has been registered by the Registration\
+            \ Authority for the AISP role. (not mandatory for Sandbox)\n- The TPP\
+            \ and the PSU have a contract that has been enrolled by the ASPSP (not\
+            \ mandatory for Sandbox)           \n    - At this step, Connexis Cash\
+            \ has delivered an OAUTH2 access token to the TPP via OAuth2 flow : Authorization\
+            \ Code Grant (for production) or Client Credential (for sandbox).\n\n\
+            \        For more details about OAuth2 flow, please click on the links\
+            \ below : \n\n        - Authorization Code Grant flow : https://developers.cib.bnpparibas.com/docs/auth2-ac-psd2\n\
+            \n        - Client Credential flow : https://developers.cib.bnpparibas.com/docs/auth2-cc\n\
+            \n- The TPP and the ASPSP have successfully processed a mutual check and\
+            \ authentication\n- The TPP has presented its OAUTH2 access token\n"
+         security:
+         -  OAuth2:
+            - aisp
+         parameters:
+         -  $ref: '#/components/parameters/PsuIpAddressHeader'
+         -  $ref: '#/components/parameters/PsuIpPortHeader'
+         -  $ref: '#/components/parameters/PsuHttpMethodHeader'
+         -  $ref: '#/components/parameters/PsuDateHeader'
+         -  $ref: '#/components/parameters/PsuGeoLocation'
+         -  $ref: '#/components/parameters/PsuUserAgentHeader'
+         -  $ref: '#/components/parameters/PsuRefererHeader'
+         -  $ref: '#/components/parameters/PsuAcceptHeader'
+         -  $ref: '#/components/parameters/PsuAcceptCharsetHeader'
+         -  $ref: '#/components/parameters/PsuAcceptEncodingHeader'
+         -  $ref: '#/components/parameters/PsuAcceptLanguageHeader'
+         -  $ref: '#/components/parameters/PsuDeviceId'
+         -  $ref: '#/components/parameters/DigestHeader'
+         -  $ref: '#/components/parameters/SignatureHeader'
+         -  $ref: '#/components/parameters/Correlation'
+         responses:
+            '200':
+               description: |
+                  The ASPSP returns the list of whitelisted beneficiaries
+               headers:
+                  X-Request-ID:
+                     description: |
+                        Correlation header to be set in a request and retrieved in the relevant response
+                     schema:
+                        type: string
+               content:
+                  application/json:
+                     schema:
+                        $ref: '#/components/schemas/HalBeneficiaries'
+            '204':
+               $ref: '#/components/responses/204'
+            '401':
+               $ref: '#/components/responses/401'
+            '403':
+               $ref: '#/components/responses/403'
+            '404':
+               $ref: '#/components/responses/404'
+            '405':
+               $ref: '#/components/responses/405'
+            '406':
+               $ref: '#/components/responses/406'
+            '429':
+               $ref: '#/components/responses/429'
+            '500':
+               $ref: '#/components/responses/500'
+components:
+   parameters:
+      AccountResourceIdentification:
+         name: accountResourceId
+         in: path
+         description: Identification of account resource to fetch
+         required: true
+         schema:
+            type: string
+            pattern: ^([a-zA-Z0-9 \/\-?:\()\.,']{1,35})$
+      PaymentRequestResourceIdentification:
+         name: paymentRequestResourceId
+         in: path
+         description: Identification of the Payment Request Resource
+         required: true
+         schema:
+            type: string
+            pattern: ^([a-zA-Z0-9 \/\-?:\()\.,']{1,35})$
+      AfterEntryReference:
+         name: afterEntryReference
+         in: query
+         description: |
+            Specifies the value on which the result has to be computed.
+            Only the transaction having a technical identification greater than this value must be included within the result
+         required: false
+         schema:
+            type: string
+            maxLength: 40
+      ToImputationDate:
+         name: entryDateTo
+         in: query
+         description: |
+            Exclusive maximal imputation date of the transactions.
+            Transactions having an imputation date equal to this parameter are not included within the result.
+         required: false
+         schema:
+            type: string
+            format: date-time
+      FromImputationDate:
+         name: entryDateFrom
+         in: query
+         description: |
+            Inclusive minimal imputation date of the transactions.
+            Transactions having an imputation date equal to this parameter are included within the result.
+         required: false
+         schema:
+            type: string
+            format: date-time
+      pageNumber:
+         name: pageNumber
+         in: query
+         description: |
+            Specifies a page number in case of a pagination
+         required: false
+         schema:
+            type: integer
+            format: int32
+      pageSize:
+         name: pageSize
+         in: query
+         description: |
+            Specifies the number of transactions to be displayed in the page in case of pagination
+         required: false
+         schema:
+            type: integer
+            format: int32
+      PsuIpAddressHeader:
+         name: PSU-IP-Address
+         in: header
+         description: IP address used by the PSU's terminal when connecting to the
+            TPP
+         schema:
+            type: string
+      PsuIpPortHeader:
+         name: PSU-IP-Port
+         in: header
+         description: IP port used by the PSU's terminal when connecting to the TPP
+         schema:
+            type: string
+      PsuHttpMethodHeader:
+         name: PSU-HTTP-Method
+         in: header
+         description: Http method for the most relevant PSU’s terminal request to
+            the TTP
+         schema:
+            type: string
+      PsuDateHeader:
+         name: PSU-Date
+         in: header
+         description: Timestamp of the most relevant PSU’s terminal request to the
+            TTP
+         schema:
+            type: string
+      PsuGeoLocation:
+         name: PSU-GEO-Location
+         in: header
+         description: Geographical location of the PSU as provided by the PSU mobile
+            terminal if any to the TPP
+         schema:
+            type: string
+      PsuUserAgentHeader:
+         name: PSU-User-Agent
+         in: header
+         description: |
+            "User-Agent" header field sent by the PSU terminal when connecting to the TPP
+         schema:
+            type: string
+      PsuRefererHeader:
+         name: PSU-Referer
+         in: header
+         description: |
+            "Referer" header field sent by the PSU terminal when connecting to the TPP.
+            Notice that an initial typo in RFC 1945 specifies that "referer" (incorrect spelling) is to be used. The correct spelling "referrer" can be used but might not be understood.
+         schema:
+            type: string
+      PsuAcceptHeader:
+         name: PSU-Accept
+         in: header
+         description: |
+            "Accept" header field sent by the PSU terminal when connecting to the TPP
+         schema:
+            type: string
+      PsuAcceptCharsetHeader:
+         name: PSU-Accept-Charset
+         in: header
+         description: |
+            "Accept-Charset" header field sent by the PSU terminal when connecting to the TPP
+         schema:
+            type: string
+      PsuAcceptEncodingHeader:
+         name: PSU-Accept-Encoding
+         in: header
+         description: |
+            "Accept-Encoding" header field sent by the PSU terminal when connecting to the TPP
+         schema:
+            type: string
+      PsuAcceptLanguageHeader:
+         name: PSU-Accept-Language
+         in: header
+         description: |
+            "Accept-Language" header field sent by the PSU terminal when connecting to the TPP
+         schema:
+            type: string
+      PsuDeviceId:
+         name: PSU-Device-ID
+         in: header
+         description: |
+            UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available.
+            UUID identifies either a device or a device dependant application installation.
+            In case of installation identification this ID need to be unaltered until removal from device.
+         schema:
+            type: string
+      DigestHeader:
+         name: Digest
+         in: header
+         required: false
+         description: Digest of the body
+         schema:
+            type: string
+      SignatureHeader:
+         name: Signature
+         in: header
+         required: true
+         description: |
+            http-signature of the request.
+            The keyId must specify the way to get the relevant qualified certificate. It is requested that this identifier is an URL aiming to provide the relevant Qualified Certificate.
+         schema:
+            type: string
+      Correlation:
+         name: X-Request-ID
+         in: header
+         required: true
+         description: |
+            Correlation header to be set in a request and retrieved in the relevant response
+         schema:
+            type: string
+            maxLength: 70
+   responses:
+      '204':
+         description: No content.
+         headers:
+            X-Request-ID:
+               description: |
+                  Correlation header to be set in a request and retrieved in the relevant response
+               schema:
+                  type: string
+      '400':
+         description: Invalid status value
+         headers:
+            X-Request-ID:
+               description: |
+                  Correlation header to be set in a request and retrieved in the relevant response
+               schema:
+                  type: string
+         content:
+            '*/*':
+               schema:
+                  $ref: '#/components/schemas/ErrorModel'
+      '401':
+         description: Unauthorized,  Access token is missing or invalid.
+         headers:
+            x-correlation-id:
+               $ref: '#/components/headers/correlationIdHeader'
+         content:
+            application/json:
+               schema:
+                  $ref: '#/components/schemas/gatewayErrors'
+      '403':
+         description: Forbidden, authentication successful but access to resource
+            is not allowed.
+         headers:
+            X-Request-ID:
+               description: |
+                  Correlation header to be set in a request and retrieved in the relevant response
+               schema:
+                  type: string
+         content:
+            '*/*':
+               schema:
+                  $ref: '#/components/schemas/ErrorModel'
+      '404':
+         description: Not found, no resource available.
+         headers:
+            x-correlation-id:
+               $ref: '#/components/headers/correlationIdHeader'
+         content:
+            application/json:
+               schema:
+                  $ref: '#/components/schemas/gatewayErrors'
+      '405':
+         description: Method Not Allowed.
+         headers:
+            X-Request-ID:
+               description: |
+                  Correlation header to be set in a request and retrieved in the relevant response
+               schema:
+                  type: string
+         content:
+            '*/*':
+               schema:
+                  $ref: '#/components/schemas/ErrorModel'
+      '406':
+         description: Not Acceptable.
+         headers:
+            X-Request-ID:
+               description: |
+                  Correlation header to be set in a request and retrieved in the relevant response
+               schema:
+                  type: string
+         content:
+            '*/*':
+               schema:
+                  $ref: '#/components/schemas/ErrorModel'
+      '408':
+         description: Request Timeout.
+         headers:
+            X-Request-ID:
+               description: |
+                  Correlation header to be set in a request and retrieved in the relevant response
+               schema:
+                  type: string
+         content:
+            '*/*':
+               schema:
+                  $ref: '#/components/schemas/ErrorModel'
+      '429':
+         description: Too many requests.
+         headers:
+            x-correlation-id:
+               $ref: '#/components/headers/correlationIdHeader'
+         content:
+            application/json:
+               schema:
+                  $ref: '#/components/schemas/gatewayErrors'
+      '500':
+         description: Internal server error.
+         headers:
+            X-Request-ID:
+               description: |
+                  Correlation header to be set in a request and retrieved in the relevant response
+               schema:
+                  type: string
+         content:
+            '*/*':
+               schema:
+                  $ref: '#/components/schemas/ErrorModel'
+      '503':
+         description: Service unavailable.
+         headers:
+            X-Request-ID:
+               description: |
+                  Correlation header to be set in a request and retrieved in the relevant response
+               schema:
+                  type: string
+         content:
+            '*/*':
+               schema:
+                  $ref: '#/components/schemas/ErrorModel'
+   requestBodies:
+      PaymentRequestResource:
+         content:
+            application/json:
+               schema:
+                  $ref: '#/components/schemas/PaymentRequestResource'
+         description: ISO20022 based payment Initiation Request
+         required: true
+   securitySchemes:
+      OAuth2:
+         description: |
+            In order to access each of the 3 scopes in Production environment, the TPP needs to get an authorization code grant OAUTH2 token.
+            The client_id field within the token request must be filled with the value of the organization identifier attribute that has been set in the distinguished name of eIDAS certificate of the TPP, according to ETSI recommandations.
+            (cf §5.2.1 of https://docbox.etsi.org/ESI/Open/Latest_Drafts/ts_119495v000003_for-public-review.pdf)
+         type: oauth2
+         flows:
+            clientCredentials:
+               tokenUrl: https://api.sandbox.cib.bnpparibas.com/oauth2/v1/token
+               scopes:
+                  aisp: Access by an AISP
+                     to one given PSU's account
+                  cib-gb-account-information-psd2-stet-mock:pisp: Access by a PISP
+                     to payments resources
+                  cib-gb-account-information-psd2-stet-mock:piisp: Access by a PIISP
+                     to one given PSU's account to check payment coverage
+   schemas:
+      ErrorModel:
+         description: Generic error report structure
+         type: object
+         required:
+         - status
+         - message
+         properties:
+            timestamp:
+               description: current timestamp
+               type: string
+               format: date-time
+            status:
+               description: HTTP error code
+               type: integer
+               format: int32
+            error:
+               description: HTTP error text
+               type: string
+               maxLength: 140
+            message:
+               description: HTTP textual reason phrase
+               type: string
+               maxLength: 140
+            path:
+               description: Relevant path that was used
+               type: string
+               maxLength: 140
+         example:
+            timestamp: 2019-01-01T00:00:00.000+0000
+            status: 4XX or 5XX
+            error: Standard HTTP Status error code
+            message: 'The reason why, for example, error code 404, you will get massage:
+               Not found, no request available.'
+            path: /v1/(this request path)
+      GenericLink:
+         description: hypertext reference
+         type: object
+         required:
+         - href
+         properties:
+            href:
+               description: URI to be used
+               type: string
+               maxLength: 140
+            templated:
+               description: specifies "true" if href is a URI template, i.e. with
+                  parameters. Otherwise, this property is absent or set to false
+               type: boolean
+         example:
+            href: v1/accounts/Alias1/balances
+      PsuContextLinks:
+         description: |
+            Links that can be used for further navigation when browsing Account Information at top level
+            - self: link to the list of all available accounts
+         type: object
+         readOnly: true
+         required:
+         - self
+         properties:
+            self:
+               $ref: '#/components/schemas/GenericLink'
+            beneficiaries:
+               $ref: '#/components/schemas/GenericLink'
+            first:
+               $ref: '#/components/schemas/GenericLink'
+            last:
+               $ref: '#/components/schemas/GenericLink'
+            next:
+               $ref: '#/components/schemas/GenericLink'
+            prev:
+               $ref: '#/components/schemas/GenericLink'
+         example:
+            self:
+               href: v1/accounts?page=2
+            first:
+               href: v1/accounts
+            last:
+               href: v1/accounts?page=last
+               templated: true
+            next:
+               href: v1/accounts?page=3
+               templated: true
+            prev:
+               href: v1/accounts
+               templated: true
+      AccountLinks:
+         description: |
+            links that can be used for further navigation when browsing Account Information at one account level
+            - balances: link to the balances of a given account
+            - transactions: link to the transactions of a given account
+         type: object
+         readOnly: true
+         properties:
+            balances:
+               $ref: '#/components/schemas/GenericLink'
+            transactions:
+               $ref: '#/components/schemas/GenericLink'
+         example:
+            balances:
+               href: v1/accounts/Alias1/balances-report
+            transactions:
+               href: v1/accounts/Alias1/transactions
+      BalancesLinks:
+         description: |
+            links that can be used for further navigation when browsing Account Information at one account level
+            - self: link to the balances of a given account
+            - parent-list: link to the list of all available accounts
+            - transactions: link to the transactions of a given account
+         type: object
+         readOnly: true
+         required:
+         - self
+         properties:
+            self:
+               $ref: '#/components/schemas/GenericLink'
+            parent-list:
+               $ref: '#/components/schemas/GenericLink'
+            transactions:
+               $ref: '#/components/schemas/GenericLink'
+         example:
+            self:
+               href: v1/accounts/1306171745/balances
+            parent-list:
+               href: v1/accounts
+            transactions:
+               href: v1/accounts/1306171745/transactions
+      TransactionsLinks:
+         description: |
+            links that can be used for further navigation when browsing Account Information at one account level
+            - self: link to the transactions of a given account
+            - parent-list: link to the list of all available accounts
+            - balances: link to the balances of a given account
+            - first: link to the first page of the transactions result
+            - last: link to the last page of the transactions result
+            - next: link to the next page of the transactions result
+            - prev: link to the previous page of the transactions result
+         type: object
+         readOnly: true
+         required:
+         - self
+         properties:
+            self:
+               $ref: '#/components/schemas/GenericLink'
+            parent-list:
+               $ref: '#/components/schemas/GenericLink'
+            balances:
+               $ref: '#/components/schemas/GenericLink'
+            first:
+               $ref: '#/components/schemas/GenericLink'
+            last:
+               $ref: '#/components/schemas/GenericLink'
+            next:
+               $ref: '#/components/schemas/GenericLink'
+            prev:
+               $ref: '#/components/schemas/GenericLink'
+         example:
+            self:
+               href: v1/accounts/19737007345/transactions
+            parent-list:
+               href: v1/accounts
+            balances:
+               href: v1/accounts/19737007345/balances
+            last:
+               href: v1/accounts/19737007345/transactions?page=last
+            next:
+               href: v1/accounts/19737007345/transactions?page=3
+      BeneficiariesLinks:
+         description: |
+            links that can be used for further navigation when browsing Account Information at one account level
+            - self: link to the beneficiaries
+            - parent-list: link to the list of all available accounts
+            - first: link to the first page of the beneficiaries result
+            - last: link to the last page of the beneficiaries result
+            - next: link to the next page of the beneficiaries result
+            - prev: link to the previous page of the beneficiaries result
+         type: object
+         readOnly: true
+         required:
+         - self
+         properties:
+            self:
+               $ref: '#/components/schemas/GenericLink'
+            parent-list:
+               $ref: '#/components/schemas/GenericLink'
+            first:
+               $ref: '#/components/schemas/GenericLink'
+            last:
+               $ref: '#/components/schemas/GenericLink'
+            next:
+               $ref: '#/components/schemas/GenericLink'
+            prev:
+               $ref: '#/components/schemas/GenericLink'
+         example:
+            self:
+               href: v1/trusted-beneficiaries
+            parent-list:
+               href: v1/accounts
+            last:
+               href: v1/trusted-beneficiaries?page=last
+            next:
+               href: v1/trusted-beneficiaries?page=1
+      PaymentRequestLinks:
+         description: |
+            links that can be used for further navigation when having post a Payment Request in order to get the relevant status report.
+         type: object
+         readOnly: true
+         properties:
+            self:
+               $ref: '#/components/schemas/GenericLink'
+            confirmation:
+               description: |
+                  This link shall not been provided when the confirmation has already been posted.
+               $ref: '#/components/schemas/GenericLink'
+         example:
+            self:
+               href: /v1/payment-requests/{paymentRequestResourceId}
+      PaymentCoverageReportLinks:
+         description: |
+            links that can be used for further navigation to post another coverage request.
+         type: object
+         readOnly: true
+         required:
+         - self
+         properties:
+            self:
+               $ref: '#/components/schemas/GenericLink'
+         example:
+            self:
+               href: v1/funds-confirmations
+      PaymentRequestResourceCreationLinks:
+         description: |
+            links that can be used for further navigation, especially in REDIRECT approach
+         type: object
+         readOnly: true
+         properties:
+            consentApproval:
+               $ref: '#/components/schemas/GenericLink'
+               description: URL to be used by the PISP in order to start the ASPSP
+                  authentication and consent management process
+         example:
+            consentApproval:
+               href: /v1/payment-requests/{paymentRequestResourceId}/authentication
+      AppliedAuthenticationApproach:
+         description: |
+            The ASPSP, based on the authentication approaches proposed by the PISP, choose the one that it can processed, in respect with the preferences and constraints of the PSU and indicates in this field which approach has been chosen
+         type: string
+         enum:
+         - REDIRECT
+         - DECOUPLED
+         - EMBEDDED
+         readOnly: true
+         example:
+            appliedAuthenticationApproach: REDIRECT
+      GenericIdentification:
+         description: |
+            ISO20022: Unique identification of an account, a person or an organisation, as assigned by an issuer.
+            API: The ASPSP will document which account reference type it will support.
+         type: object
+         properties:
+            identification:
+               description: |
+                  API: Identifier
+               type: string
+               maxLength: 70
+            schemeName:
+               description: |
+                  Name of the identification scheme.
+                  Possible values for the scheme name, partially based on ISO20022 external code list, are the following:
+                  - BANK (BankPartyIdentification): Unique and unambiguous assignment made by a specific bank or similar financial institution to identify a relationship as defined between the bank and its client.
+                  - COID (CountryIdentificationCode) : Country authority given organisation identification (e.g., corporate registration number)
+                  - SREN (SIREN): The SIREN number is a 9 digit code assigned by INSEE, the French National Institute for Statistics and Economic Studies, to identify an organisation in France.
+                  - SRET (SIRET): The SIRET number is a 14 digit code assigned by INSEE, the French National Institute for Statistics and Economic Studies, to identify an organisation unit in France. It consists of the SIREN number, followed by a five digit classification number, to identify the local geographical unit of that entity.
+                  - NIDN (NationalIdentityNumber): Number assigned by an authority to identify the national identity number of a person.
+                  Other values are also permitted, for instance:
+                  - OAUT (OAUTH2): OAUTH2 access token that is owned by the PISP being also an AISP and that can be used in order to identify the PSU
+                  - CPAN (CardPan): Card PAN
+               type: string
+               maxLength: 70
+            issuer:
+               description: |
+                  ISO20022: Entity that assigns the identification. this could a country code or any organisation name or identifier that can be recognized by both parties
+               type: string
+               maxLength: 35
+         example:
+            identification: 12FR5
+            schemeName: COID
+            issuer: FR
+      AccountIdentification:
+         description: Unique and unambiguous identification for the account between
+            the account owner and the account servicer.
+         type: object
+         required:
+         - iban
+         properties:
+            iban:
+               description: |
+                  ISO20022: International Bank Account Number (IBAN) - identification used internationally by financial institutions to uniquely identify the account of a customer.
+
+                  Further specifications of the format and content of the IBAN can be found in the standard ISO 13616 "Banking and related financial services - International Bank Account Number (IBAN)" version 1997-10-01, or later revisions.
+               type: string
+               pattern: ^[A-Z]{2,2}[0-9]{2,2}[a-zA-Z0-9]{1,30}$
+            other:
+               $ref: '#/components/schemas/GenericIdentification'
+         example:
+            Iban: YY64COJH41059545330222956960771321
+      AmountType:
+         description: |
+            ISO20022: structure aiming to carry either an instructed amount or equivalent amount. Both structures embed the amount and the currency to be used.
+
+            API: only instructed amount can be used
+         type: object
+         required:
+         - currency
+         - amount
+         properties:
+            currency:
+               description: |
+                  Specifies the currency of the amount. A code allocated to a currency by a Maintenance Agency under an international identification scheme, as described in the latest edition of the international standard ISO 4217 "Codes for the representation of currencies and funds".
+               type: string
+               pattern: ^[A-Z]{3,3}$
+            amount:
+               description: |
+                  ISO20022: Amount of money to be moved between the debtor and creditor, before deduction of charges, expressed in the currency as ordered by the initiating party.
+               type: string
+               pattern: ^\-{0,1}[0-9]{1,13}(\.[0-9]{0,5}){0,1}$
+         example:
+            currency: EUR
+            amount: '12.25'
+      ClearingSystemMemberIdentification:
+         description: |
+            ISO20022: Information used to identify a member within a clearing system.
+            API: to be used for some specific international credit transfers in order to identify the beneficiary bank
+         type: object
+         properties:
+            clearingSystemId:
+               description: |
+                  ISO20022: Specification of a pre-agreed offering between clearing agents or the channel through which the payment instruction is processed.
+               type: string
+               maxLength: 35
+            memberId:
+               description: |
+                  ISO20022: Identification of a member of a clearing system.
+               type: string
+               maxLength: 35
+         example: |
+            {
+              "clearingSystemId" : "NZNCC",
+              "memberId" : "020368"
+            }
+      FinancialInstitutionIdentification:
+         description: |
+            ISO20022: Unique and unambiguous identification of a financial institution, as assigned under an internationally recognised or proprietary identification scheme.
+         type: object
+         required:
+         - bicFi
+         properties:
+            bicFi:
+               description: |
+                  ISO20022: Code allocated to a financial institution by the ISO 9362 Registration Authority as described in ISO 9362 "Banking - Banking telecommunication messages - Business identification code (BIC)".
+               type: string
+               pattern: ^[A-Z]{6,6}[A-Z2-9][A-NP-Z0-9]([A-Z0-9]{3,3}){0,1}$
+            clearingSystemMemberId:
+               $ref: '#/components/schemas/ClearingSystemMemberIdentification'
+            name:
+               type: string
+               description: Name of the financial institution
+               maxLength: 140
+            postalAddress:
+               $ref: '#/components/schemas/PostalAddress'
+         example:
+            bicFi: BNKAFRPPXXX
+      PostalAddress:
+         description: |
+            ISO20022 : Information that locates and identifies a specific address, as defined by postal services.
+         type: object
+         required:
+         - country
+         - addressLine
+         properties:
+            country:
+               description: |
+                  ISO20022: Country in which a person resides (the place of a person's home). In the case of a company, it is the country from which the affairs of that company are directed.
+               type: string
+               pattern: ^([A-Z]{2,2})$
+            addressLine:
+               description: Unstructured address. The two lines must embed zip code
+                  and town name
+               type: array
+               items:
+                  description: Address line
+                  type: string
+                  maxItems: 2
+                  maxLength: 70
+         example:
+            country: FR
+            addressLine:
+            - 18 rue de la DSP2
+            - 75008 PARIS
+      PartyIdentification:
+         description: |
+            API : Description of a Party which can be either a person or an organization.
+         type: object
+         required:
+         - name
+         properties:
+            name:
+               description: |
+                  ISO20022: Name by which a party is known and which is usually used to identify that party.
+               type: string
+               maxLength: 140
+            postalAddress:
+               $ref: '#/components/schemas/PostalAddress'
+            organisationId:
+               description: Unique and unambiguous way to identify an organisation.
+               $ref: '#/components/schemas/GenericIdentification'
+            privateId:
+               description: Unique and unambiguous identification of a person.
+               $ref: '#/components/schemas/GenericIdentification'
+         example:
+            name: MyPreferedPisp
+            postalAddress:
+               country: FR
+               addressLine:
+               - 18 rue de la DSP2
+               - 75008 PARIS
+      ResourceId:
+         description: |
+            API: Identifier assigned by the ASPSP for further use of the created resource through API calls
+         type: string
+         pattern: ^([a-zA-Z0-9 \/\-?:\()\.,']{1,35})$
+         readOnly: true
+      PaymentIdentification:
+         description: |
+            ISO20022: Set of elements used to reference a payment instruction.
+         type: object
+         required:
+         - instructionId
+         - endToEndId
+         properties:
+            resourceId:
+               $ref: '#/components/schemas/ResourceId'
+            instructionId:
+               description: |
+                  ISO20022: Unique identification as assigned by an instructing party for an instructed party to unambiguously identify the instruction.
+
+                  API: Unique identification shared between the PISP and the ASPSP
+               type: string
+               pattern: ^([a-zA-Z0-9 \/\-?:\()\.,']{1,35})$
+            endToEndId:
+               description: |
+                  ISO20022: Unique identification assigned by the initiating party to unambiguously identify the transaction. This identification is passed on, unchanged, throughout the entire end-to-end chain.
+
+                  API: Unique identification shared between the merchant and the PSU
+               type: string
+               pattern: ^([a-zA-Z0-9 \/\-?:\()\.,']{1,35})$
+         example:
+            resourceId: MyInstrRscId
+            instructionId: MyInstrId
+            endToEndId: MyEndToEndId
+      PriorityCode:
+         description: |
+            ISO20022: Indicator of the urgency or order of importance that the instructing party would like the instructed party to apply to the processing of the instruction.
+         type: string
+         enum:
+         - HIGH
+         - NORM
+      CategoryPurposeCode:
+         description: |
+            ISO20022: Specifies the high level purpose of the instruction based on a set of pre-defined categories. This is used by the initiating party to provide information concerning the processing of the payment. It is likely to trigger special processing by any of the agents involved in the payment chain.
+            API: The following values are allowed:
+              - CASH (CashManagementTransfer): Transaction is a general cash management instruction.
+              - DVPM (DeliverAgainstPayment): Code used to pre-advise the account servicer of a forthcoming deliver against payment instruction.
+         type: string
+         enum:
+         - CASH
+         - DVPM
+      ServiceLevelCode:
+         description: |
+            ISO20022: Agreement under which or rules under which the transaction should be processed. Specifies a pre-agreed service or level of service between the parties, as published in an external service level code list.
+            API: Only "SEPA" (SEPA Credit Transfer) or "NURG" (Other Credit Transfer) values are allowed
+         type: string
+         enum:
+         - NURG
+         - SEPA
+      LocalInstrumentCode:
+         description: |
+            ISO20022: User community specific instrument.
+            Usage: This element is used to specify a local instrument, local clearing option and/or further qualify the service or service level.
+            API: Only "INST" value is allowed in order to ask for an SEPA instant Payment. Can only be used if ServiceLevel is equal to "SEPA"
+         type: string
+         enum:
+         - INST
+      PaymentTypeInformation:
+         description: |
+            ISO20022: Set of elements used to further specify the type of transaction.
+         type: object
+         required:
+         - serviceLevel
+         properties:
+            instructionPriority:
+               $ref: '#/components/schemas/PriorityCode'
+            serviceLevel:
+               $ref: '#/components/schemas/ServiceLevelCode'
+            localInstrument:
+               $ref: '#/components/schemas/LocalInstrumentCode'
+            categoryPurpose:
+               $ref: '#/components/schemas/CategoryPurposeCode'
+         example:
+            instructionPriority: HIGH
+            serviceLevel: SEPA
+            localInstrument: INST
+            categoryPurpose: DVPM
+      PurposeCode:
+         description: |
+            ISO20022: Underlying reason for the payment transaction, as published in an external purpose code list.
+            API: The following values are allowed for Payment  Request
+              - ACCT (Funds moved between 2 accounts of same account holder at the same bank)
+              - CASH (general cash management instruction) may be used for Transfer Initiation
+              - COMC Transaction is related to a payment of commercial credit or debit.
+              - CPKC General Carpark Charges Transaction is related to carpark charges.
+              - TRPT Transport RoadPricing Transaction is for the payment to top-up pre-paid card and electronic road pricing for the purpose of transportation
+         type: string
+         enum:
+         - ACCT
+         - CASH
+         - COMC
+         - CPKC
+         - TRPT
+      ChargeBearerCode:
+         description: |
+            ISO20022: Specifies which party/parties will bear the charges associated with the processing of the payment transaction.
+            API: The following values are allowed for Payment  Request
+              - SLEV:  Charges are to be applied following the rules agreed in the service level and/or scheme.
+         type: string
+         enum:
+         - SLEV
+      UnstructuredRemittanceInformation:
+         description: |
+            ISO20022: Information supplied to enable the matching of an entry with the items that the transfer is intended to settle, such as commercial invoices in an accounts' receivable system.
+            API: Only one occurrence is allowed
+         type: array
+         items:
+            type: string
+            description: Relevant information to the transaction
+            title: remittanceLine
+            maxLength: 140
+      PaymentInformationStatusCode:
+         description: |
+            ISO20022: Specifies the status of the payment information.
+            API: Mandatory. The following values are allowed to provide the status of the Payment Request
+              - ACCP (AcceptedCustomerProfile): Preceding check of technical validation was successful. Customer profile check was also successful.
+              - ACSC (AcceptedSettlementCompleted): Settlement on the debtor's account has been completed.
+              - ACSP (AcceptedSettlementInProcess): All preceding checks such as technical validation and customer profile were successful. Dynamic risk assessment is now also successful and therefore the Payment Request has been accepted for execution.
+              - ACTC (AcceptedTechnicalValidation): Authentication and syntactical and semantical validation are successful.
+              - ACWC (AcceptedWithChange): Instruction is accepted but a change will be made, such as date or remittance not sent.
+              - ACWP (AcceptedWithoutPosting): Payment instruction included in the credit transfer is accepted without being posted to the creditor customer’s account.
+              - PART (PartiallyAccepted): A number of transactions have been accepted, whereas another number of transactions have not yet achieved 'accepted' status.
+              - RCVD (Received): Payment initiation has been received by the receiving agent.
+              - PDNG (Pending): Payment request or individual transaction included in the Payment Request is pending. Further checks and status update will be performed.
+              - RJCT (Rejected): Payment request  has been rejected.
+         type: string
+         enum:
+         - ACCP
+         - ACSC
+         - ACSP
+         - ACTC
+         - ACWC
+         - ACWP
+         - PART
+         - RCVD
+         - PDNG
+         - RJCT
+      TransactionIndividualStatusCode:
+         description: |
+            ISO20022: Specifies the status of the payment information group.
+
+            API: Only the following values are allowed to provide the status of the subsequent CREDIT TRANSFER to the Payment Request
+            - RJCT: Payment request or individual transaction included in the Payment Request has been rejected.
+            - PDNG: (Pending): Payment request or individual transaction included in the Payment Request is pending. Further checks and status update will be performed.
+            - ACSP: All preceding checks such as technical validation and customer profile were successful and therefore the Payment Request has been accepted for execution.
+            - ACSC: Settlement on the debtor's account has been completed
+         type: string
+         enum:
+         - RJCT
+         - PDNG
+         - ACSP
+         - ACSC
+      StatusReasonInformation:
+         description: |
+            ISO20022: Provides detailed information on the status reason.
+
+            API: Can only be used in status equal to "RJCT". Only the following values are allowed:
+            - AC01 (IncorectAccountNumber): the account number is either invalid or does not exist
+            - AC04 (ClosedAccountNumber): the account is closed and cannot be used
+            - AC06 (BlockedAccount): the account is blocked and cannot be used
+            - AG01 (Transaction forbidden): Transaction forbidden on this type of account
+            - AM18 (InvalidNumberOfTransactions): the number of transactions exceeds the ASPSP acceptance limit
+            - CH03 (RequestedExecutionDateOrRequestedCollectionDateTooFarInFuture): The requested execution date is too far in the future
+            - CUST (RequestedByCustomer): The reject is due to the debtor: refusal or lack of liquidity
+            - DS02 (OrderCancelled): An authorized user has cancelled the order
+            - FF01 (InvalidFileFormat): The reject is due to the original Payment Request which is invalid (syntax, structure or values)
+            - FRAD (FraudulentOriginated): the Payment Request is considered as fraudulent
+            - MS03 (NotSpecifiedReasonAgentGenerated): No reason specified by the ASPSP
+            - NOAS (NoAnswerFromCustomer): The PSU has neither accepted nor rejected the Payment Request and a time-out has occurred
+            - RR01 (MissingDebtorAccountOrIdentification): The Debtor account and/or Identification are missing or inconsistent
+            - RR03 (MissingCreditorNameOrAddress): Specification of the creditor’s name and/or address needed for regulatory requirements is insufficient or missing.
+            - RR04 (RegulatoryReason): Reject from regulatory reason
+            - RR12 (InvalidPartyID): Invalid or missing identification required within a particular country or payment type.
+         type: string
+         enum:
+         - AC01
+         - AC04
+         - AC06
+         - AG01
+         - CH03
+         - CUST
+         - DS02
+         - FF01
+         - FRAD
+         - MS03
+         - NOAS
+         - RR01
+         - RR03
+         - RR04
+         - RR12
+      RegulatoryReportingCode:
+         description: |
+            Information needed due to regulatory and statutory requirements.
+            Economical codes to be used are provided by the National Competent Authority
+         type: string
+         maxLength: 10
+      RegulatoryReportingCodes:
+         description: |
+            List of needed regulatory reporting codes for international payments
+         type: array
+         items:
+            $ref: '#/components/schemas/RegulatoryReportingCode'
+         minItems: 1
+         maxItems: 10
+      RequestedExecutionDate:
+         description: |
+            ISO20022: Date at which the initiating party requests the clearing agent to process the payment.
+            API:
+            This date can be used in the following cases:
+            - the single requested execution date for a payment having several instructions. In this case, this field must be set at the payment level.
+            - the requested execution date for a given instruction within a payment. In this case, this field must be set at each instruction level.
+            - The first date of execution for a standing order.
+            When the payment cannot be processed at this date, the ASPSP is allowed to shift the applied execution date to the next possible execution date for non-standing orders.
+            For standing orders, the [executionRule] parameter helps to compute the execution date to be applied.
+         type: string
+         format: date-time
+      EndDate:
+         description: |
+            The last applicable day of execution for a given standing order.
+            If not given, the standing order is considered as endless.
+         type: string
+         format: date-time
+      ExecutionRule:
+         description: |
+            Execution date shifting rule for standing orders
+            This data attribute defines the behaviour when recurring payment dates falls on a weekend or bank holiday.
+            The payment is then executed either the "preceding" or "following" working day.
+            ASPSP might reject the request due to the communicated value, if rules in Online-Banking are not supporting
+            this execution rule.
+            - FWNG: following
+            - PREC: preceding
+         type: string
+         enum:
+         - FWNG
+         - PREC
+      FrequencyCode:
+         description: |
+            Frequency rule for standing orders.
+            The following codes from the "EventFrequency7Code" of ISO 20022 are supported.
+            - DAIL: Daily
+            - WEEK: Weekly
+            - TOWK: EveryTwoWeeks
+            - MNTH: Monthly
+            - TOMN: EveryTwoMonths
+            - QUTR: Quarterly
+            - SEMI: SemiAnnual
+            - YEAR: Annual
+            However, each ASPSP might restrict these values into a subset if needed.
+         type: string
+         enum:
+         - DAIL
+         - WEEK
+         - TOWK
+         - MNTH
+         - TOMN
+         - QUTR
+         - SEMI
+         - YEAR
+      CreditTransferTransaction:
+         description: |
+            ISO20022: Payment processes required to transfer cash from the debtor to the creditor.
+            API:
+         type: object
+         required:
+         - paymentId
+         - instructedAmount
+         - remittanceInformation
+         properties:
+            paymentId:
+               $ref: '#/components/schemas/PaymentIdentification'
+            requestedExecutionDate:
+               $ref: '#/components/schemas/RequestedExecutionDate'
+            endDate:
+               $ref: '#/components/schemas/EndDate'
+            executionRule:
+               $ref: '#/components/schemas/ExecutionRule'
+            frequency:
+               $ref: '#/components/schemas/FrequencyCode'
+            instructedAmount:
+               $ref: '#/components/schemas/AmountType'
+            beneficiary:
+               $ref: '#/components/schemas/Beneficiary'
+            ultimateCreditor:
+               $ref: '#/components/schemas/PartyIdentification'
+            regulatoryReportingCodes:
+               $ref: '#/components/schemas/RegulatoryReportingCodes'
+            remittanceInformation:
+               $ref: '#/components/schemas/UnstructuredRemittanceInformation'
+            transactionStatus:
+               $ref: '#/components/schemas/TransactionIndividualStatusCode'
+            statusReasonInformation:
+               $ref: '#/components/schemas/StatusReasonInformation'
+         example:
+            paymentIdentification:
+               resourceId: MyInstrRscId
+               instructionIdentification: MyInstrId
+               endToEndIdentification: MyEndToEndId
+            requestedExecutionDate: '2016-12-31T00:00:00.000+01:00'
+            instructedAmount:
+               currency: EUR
+               amount: '124.35'
+            remittanceInformation:
+            - MyRemittanceInformation
+      SupplementaryData:
+         description: |
+            ISO20022: Additional information that cannot be captured in the structured elements and/or any other specific block.
+
+            API: This structure is used to embed the relevant URLs for returning the status report to the PISP and to specify which authentication approaches are accepted by the PISP and which has been chosen by the ASPSP
+         type: object
+         properties:
+            acceptedAuthenticationApproach:
+               description: |
+                  can only be set by the PISP
+                  authentication approaches that are supported by the PISP. The PISP can provide several choices separated by commas.
+                  REDIRECT: the PSU is redirected by the TPP to the ASPSP which processes identification and authentication
+                  DECOUPLED: the TPP identifies the PSU and forwards the identification to the ASPSP which processes the authentication through a decoupled device
+                  EMBEDDED: the TPP identifies the PSU and forwards the identification to the ASPSP which starts the authentication. The TPP forwards one authentication factor of the PSU (e.g. OTP or response to a challenge)
+               type: array
+               items:
+                  type: string
+                  description: combination of possible values for authentication approaches
+                  enum:
+                  - REDIRECT
+                  - DECOUPLED
+                  - EMBEDDED
+            appliedAuthenticationApproach:
+               $ref: '#/components/schemas/AppliedAuthenticationApproach'
+            scaHint:
+               description: |
+                  can only be set by the PISP
+                  Hint given by the merchant and/or the PISP about an SCA exemption context
+               type: string
+               enum:
+               - noScaExemption
+               - scaExemption
+            successfulReportUrl:
+               description: |
+                  URL to be used by the ASPSP in order to notify the PISP of the finalisation of the authentication and consent process in REDIRECT and DECOUPLED approach
+               type: string
+            unsuccessfulReportUrl:
+               description: |
+                  URL to be used by the ASPSP in order to notify the PISP of the failure of the authentication and consent process in REDIRECT and DECOUPLED approach
+                  If this URL is not provided by the PISP, the ASPSP will use the "successfulReportUrl" even in case of failure of the Payment Request processing
+               type: string
+         example:
+            successfulReportUrl: http://myPisp/PaymentSuccess
+            unsuccessfulReportUrl: http://myPisp/PaymentFailure
+      BalanceStatus:
+         description: |
+            Type of balance
+            - CLBD: (ISO20022 ClosingBooked) Accounting Balance
+            - XPCD: (ISO20022 Expected) Instant Balance
+            - VALU: Value-date balance
+            - OTHR: Other Balance
+         type: string
+         enum:
+         - CLBD
+         - XPCD
+         - VALU
+         - OTHR
+      TransactionStatus:
+         description: |
+            Type of Transaction
+            - BOOK: (ISO20022 ClosingBooked) Accounted transaction
+            - PDNG: (ISO20022 Expected) Instant Balance Transaction
+            - OTHR: Other
+         type: string
+         enum:
+         - BOOK
+         - PDNG
+         - OTHR
+      Transaction:
+         description: structure of a transaction
+         type: object
+         required:
+         - transactionAmount
+         - status
+         - creditDebitIndicator
+         - bookingDate
+         - remittanceInformation
+         properties:
+            resourceId:
+               $ref: '#/components/schemas/ResourceId'
+            entryReference:
+               type: string
+               description: |
+                  Technical incremental identification of the transaction.
+               maxLength: 40
+            transactionAmount:
+               $ref: '#/components/schemas/AmountType'
+            creditDebitIndicator:
+               description: |
+                  Accounting flow of the transaction
+                  - CRDT: Credit type transaction
+                  - DBIT: Debit type transaction
+               type: string
+               enum:
+               - CRDT
+               - DBIT
+            status:
+               $ref: '#/components/schemas/TransactionStatus'
+            bookingDate:
+               description: Booking date of the transaction on the account
+               type: string
+               format: date
+            valueDate:
+               description: Value date of the transaction on the account
+               type: string
+               format: date
+            transactionDate:
+               description: |
+                  Date used for specific purposes:
+                  - for card transaction: date of the transaction
+                  - for credit transfer: acquiring date of the transaction
+                  - for direct debit: receiving date of the transaction
+               type: string
+               format: date
+            remittanceInformation:
+               $ref: '#/components/schemas/UnstructuredRemittanceInformation'
+         example:
+            resourceId: null
+            entryReference: ''
+            transactionAmount:
+               currency: DKK
+               amount: '500'
+            creditDebitIndicator: DBIT
+            status: BOOK
+            bookingDate: '2018-11-22'
+            valueDate: '2018-11-22'
+            transactionDate: '2018-11-22'
+            remittanceInformation: /BENM/ANGULAR
+      AccountResource:
+         description: |
+            PSU account that is made available to the TPP
+         type: object
+         required:
+         - name
+         - cashAccountType
+         - currency
+         - _links
+         properties:
+            resourceId:
+               $ref: '#/components/schemas/ResourceId'
+            bicFi:
+               description: |
+                  ISO20022: Code allocated to a financial institution by the ISO 9362 Registration Authority as described in ISO 9362 "Banking - Banking telecommunication messages - Business identification code (BIC)".
+               type: string
+               pattern: ^[A-Z]{6,6}[A-Z2-9][A-NP-Z0-9]([A-Z0-9]{3,3}){0,1}$
+            accountId:
+               $ref: '#/components/schemas/AccountIdentification'
+            name:
+               description: |
+                  Label of the PSU account
+                  In case of a delayed debit card transaction set, the name shall specify the holder name and the imputation date
+               type: string
+               maxLength: 70
+            details:
+               description: |
+                  Specifications that might be provided by the ASPSP
+                  - characteristics of the account
+                  - characteristics of the relevant card
+               type: string
+               maxLength: 140
+            linkedAccount:
+               description: Case of a set of pending card transactions, the APSP will
+                  provide the relevant cash account the card is set up on.
+               type: string
+               maxLength: 70
+            usage:
+               description: |
+                  Specifies the usage of the account
+                  - PRIV: private personal account
+                  - ORGA: professional account
+               type: string
+               enum:
+               - PRIV
+               - ORGA
+            cashAccountType:
+               description: |
+                  Specifies the type of the account
+                  - CACC: Cash account
+                  - CARD: List of card based transactions
+               type: string
+               enum:
+               - CACC
+               - CARD
+            product:
+               description: |
+                  Product Name of the Bank for this account, proprietary definition
+               type: string
+               maxLength: 35
+            currency:
+               description: Currency used for the account
+               type: string
+               maxLength: 3
+            balances:
+               description: list of balances provided by the ASPSP
+               type: array
+               items:
+                  $ref: '#/components/schemas/BalanceResource'
+               minItems: 1
+            psuStatus:
+               description: Relationship between the PSU and the account - Account
+                  Holder - Co-account Holder - Attorney
+               type: string
+               maxLength: 35
+            _links:
+               $ref: '#/components/schemas/AccountLinks'
+         example:
+            resourceId: '1306171745'
+            bicFi: BNPAPLPXXXX
+            name: TXW PXXXKX XP. Z X.X.
+            usage: ORGA
+            accountId:
+               iban: PL97-2350-0002-0110-0099-0018-9978
+               other: null
+            cashAccountType: CACC
+            currency: EUR
+            psuStatus: ''
+            _links:
+               balances:
+                  href: v1/accounts/1306171745/balances
+               transactions:
+                  href: v1/accounts/1306171745/transactions
+      BalanceResource:
+         description: Structure of an account balance
+         type: object
+         required:
+         - name
+         - balanceAmount
+         - balanceType
+         properties:
+            name:
+               description: Label of the balance
+               type: string
+               maxLength: 70
+            balanceAmount:
+               $ref: '#/components/schemas/AmountType'
+            balanceType:
+               $ref: '#/components/schemas/BalanceStatus'
+            lastChangeDateTime:
+               description: Timestamp of the last change of the balance amount
+               type: string
+               format: date-time
+            referenceDate:
+               description: Reference date for the balance
+               type: string
+               format: date
+            lastCommittedTransaction:
+               description: |
+                  Identification of the last committed transaction. This is actually useful for instant balance.
+               type: string
+               maxLength: 40
+         example:
+            name: Ledger Booked 2018-06-20
+            balanceAmount:
+               currency: EUR
+               amount: '12002'
+            balanceType: CLBD
+            lastCommittedTransaction: null
+            referenceDate: '2018-06-20'
+      ConfirmationResource:
+         description: Confirmation request resource
+         type: object
+         properties:
+            psuAuthenticationFactor:
+               type: string
+               description: authentication factor forwarded by the TPP to the ASPSP
+                  in order to fulfil the strong customer authentication process
+         example:
+            psuAuthenticationFactor: JJKJKJ788GKJKJBK
+      PaymentInformationId:
+         description: |
+            ISO20022 : Reference assigned by a sending party to unambiguously identify the payment information block within the message.
+         type: string
+         pattern: ^([a-zA-Z0-9 \/\-?:\()\.,']{1,35})$
+      CreationDateTime:
+         description: |
+            ISO20022: Date and time at which a (group of) payment instruction(s) was created by the instructing party.
+         type: string
+         format: date-time
+      FundsAvailabilityInformation:
+         description: |
+            indicator that the payment can be covered or not by the funds available on the relevant account
+            - true: payment is covered
+            - false: payment is not covered
+         type: boolean
+         readOnly: true
+      BookingInformation:
+         description: |
+            indicator that the payment can be immediately booked or not
+            - true: payment is booked
+            - false: payment is not booked
+         type: boolean
+         readOnly: true
+      PaymentRequestResource:
+         description: |
+            ISO20022: The PaymentRequestResource message is sent by the Creditor sending party to the Debtor receiving party, directly or through agents. It is used by a Creditor to request movement of funds from the debtor account to a creditor.
+            API:
+            Information about the creditor (Id, account and agent) might be placed either at instruction level. Thus multi-beneficiary payments can be handled.
+            The requested execution date can be placed either at payment level when all instructions are requested to be executed at the same date or at instruction level.
+            The latest case includes:
+            - multiple instructions having different requested execution dates
+            - standing orders settings
+         type: object
+         required:
+         - paymentInformationId
+         - creationDateTime
+         - numberOfTransactions
+         - initiatingParty
+         - debtor
+         - debtorAccount
+         - beneficiary
+         - paymentTypeInformation
+         - creditTransferTransaction
+         - supplementaryData
+         properties:
+            resourceId:
+               $ref: '#/components/schemas/ResourceId'
+            paymentInformationId:
+               $ref: '#/components/schemas/PaymentInformationId'
+            creationDateTime:
+               $ref: '#/components/schemas/CreationDateTime'
+            numberOfTransactions:
+               description: |
+                  ISO20022: Number of individual transactions contained in the message.
+                  API: Each ASPSP will specify a maximum value for this field taking into accounts its specificities about payment request handling
+               type: integer
+               minimum: 1
+            initiatingParty:
+               $ref: '#/components/schemas/PartyIdentification'
+            paymentTypeInformation:
+               $ref: '#/components/schemas/PaymentTypeInformation'
+            debtor:
+               $ref: '#/components/schemas/PartyIdentification'
+            debtorAccount:
+               $ref: '#/components/schemas/AccountIdentification'
+            debtorAgent:
+               $ref: '#/components/schemas/FinancialInstitutionIdentification'
+            beneficiary:
+               $ref: '#/components/schemas/Beneficiary'
+            ultimateCreditor:
+               $ref: '#/components/schemas/PartyIdentification'
+            purpose:
+               $ref: '#/components/schemas/PurposeCode'
+            chargeBearer:
+               $ref: '#/components/schemas/ChargeBearerCode'
+            paymentInformationStatus:
+               $ref: '#/components/schemas/PaymentInformationStatusCode'
+            statusReasonInformation:
+               $ref: '#/components/schemas/StatusReasonInformation'
+            fundsAvailability:
+               $ref: '#/components/schemas/FundsAvailabilityInformation'
+            booking:
+               $ref: '#/components/schemas/BookingInformation'
+            requestedExecutionDate:
+               description: |
+                  ISO20022: Date at which the initiating party requests the clearing agent to process the payment.
+               type: string
+               format: date-time
+            creditTransferTransaction:
+               description: |
+                  ISO20022: Payment processes required to transfer cash from the debtor to the creditor.
+                  API: Each ASPSP will specify a maxItems value for this field taking into accounts its specificities about payment request handling
+               type: array
+               minItems: 1
+               items:
+                  $ref: '#/components/schemas/CreditTransferTransaction'
+            supplementaryData:
+               $ref: '#/components/schemas/SupplementaryData'
+         example:
+            paymentInformationId: MyPmtInfId
+            creationDateTime: '2019-01-01T13:25:22.527+02:00'
+            numberOfTransactions: 1
+            initiatingParty:
+               name: MyPreferedPisp
+               postalAddress:
+                  country: FR
+                  addressLine:
+                  - 18 rue de la DSP2
+                  - 75008 PARIS
+               organisationId:
+                  identification: 12FR5
+                  schemeName: COID
+                  issuer: ACPR
+            paymentTypeInformation:
+               serviceLevel: SEPA
+               localInstrument: null
+               categoryPurpose: DVPM
+            debtor:
+               name: MyCustomer
+               postalAddress:
+                  country: FR
+                  addressLine:
+                  - 18 rue de la DSP2
+                  - 75008 PARIS
+               privateId:
+                  identification: FD37G
+                  schemeName: BANK
+                  issuer: BICXYYTTZZZ
+            creditor:
+               name: myProvider
+               postalAddress:
+                  country: FR
+                  addressLine:
+                  - 18 rue de la DSP2
+                  - 75008 PARIS
+               organisationId:
+                  identification: '852126789'
+                  schemeName: SIREN
+                  issuer: FR
+            creditorAccount:
+               iban: YY64COJH41059545330222956960771321
+            ultimateCreditor:
+               name: myPreferedUltimateProvider
+               postalAddress:
+                  country: FR
+                  addressLine:
+                  - 18 rue de la DSP2
+                  - 75008 PARIS
+               organisationId:
+                  identification: '85212678900025'
+                  schemeName: SIRET
+                  issuer: FR
+            purpose: COMC
+            chargeBearer: SLEV
+            creditTransferTransaction:
+            -  paymentId:
+                  instructionId: MyInstrId
+                  endToEndId: MyEndToEndId
+               requestedExecutionDate: '2019-01-02T00:00:00.000+01:00'
+               instructedAmount:
+                  currency: EUR
+                  amount: '124.35'
+               remittanceInformation:
+               - MyRemittanceInformation
+            supplementaryData:
+               acceptedAuthenticationApproach:
+               - REDIRECT
+               - DECOUPLED
+               successfulReportUrl: http://TPPs_URL/PaymentSuccess
+               unsuccessfulReportUrl: http://TPPs_URL/PaymentFailure
+      PaymentCoverageRequestResource:
+         description: Payment coverage request structure. The request must rely either
+            on a cash account or a payment card.
+         type: object
+         required:
+         - paymentCoverageRequestId
+         - instructedAmount
+         - accountId
+         properties:
+            paymentCoverageRequestId:
+               description: Identification of the payment Coverage Request
+               type: string
+               maxLength: 35
+            payee:
+               description: The merchant where the card is accepted as information
+                  to the PSU.
+               type: string
+               maxLength: 70
+            instructedAmount:
+               $ref: '#/components/schemas/AmountType'
+            accountId:
+               $ref: '#/components/schemas/AccountIdentification'
+         example:
+            accountId:
+               iban: MC2314508000015104793001D18
+            paymentCoverageRequestId: MyCoverage123456
+            instructedAmount:
+               currency: EUR
+               amount: '500'
+      HalAccounts:
+         description: HYPERMEDIA structure used for returning the list of the available
+            accounts to the AISP
+         type: object
+         required:
+         - accounts
+         - _links
+         properties:
+            connectedPsu:
+               description: |
+                  Last name and first name that has granted access to the AISP on the accounts data
+                  This information can be retrieved based on the PSU's authentication that occurred during the OAUTH2 access token initialisation.
+               type: string
+               maxLength: 70
+               example: User 1
+            accounts:
+               description: |
+                  List of PSU account that are made available to the TPP
+               type: array
+               items:
+                  $ref: '#/components/schemas/AccountResource'
+            _links:
+               $ref: '#/components/schemas/PsuContextLinks'
+      HalBalances:
+         description: HYPERMEDIA structure used for returning the list of the relevant
+            balances for a given account to the AISP
+         type: object
+         required:
+         - balances
+         - _links
+         properties:
+            balances:
+               description: List of account balances
+               type: array
+               items:
+                  $ref: '#/components/schemas/BalanceResource'
+               minItems: 1
+            _links:
+               $ref: '#/components/schemas/BalancesLinks'
+      HalTransactions:
+         description: HYPERMEDIA structure used for returning the list of the transactions
+            for a given account to the AISP
+         type: object
+         required:
+         - transactions
+         - _links
+         properties:
+            transactions:
+               description: List of transactions
+               type: array
+               items:
+                  $ref: '#/components/schemas/Transaction'
+            _links:
+               $ref: '#/components/schemas/TransactionsLinks'
+      HalPaymentRequest:
+         description: HYPERMEDIA structure used for returning the original Payment
+            Request to the PISP
+         type: object
+         required:
+         - paymentRequest
+         - _links
+         properties:
+            paymentRequest:
+               $ref: '#/components/schemas/PaymentRequestResource'
+            _links:
+               $ref: '#/components/schemas/PaymentRequestLinks'
+      HalPaymentRequestCreation:
+         description: |
+            data forwarded by the ASPSP top the PISP after creation of the Payment Request resource creation
+         type: object
+         properties:
+            appliedAuthenticationApproach:
+               $ref: '#/components/schemas/AppliedAuthenticationApproach'
+            _links:
+               $ref: '#/components/schemas/PaymentRequestResourceCreationLinks'
+      HalPaymentCoverageReport:
+         description: HYPERMEDIA structure used for returning the payment coverage
+            report to the PIISP
+         type: object
+         required:
+         - request
+         - result
+         - _links
+         properties:
+            request:
+               $ref: '#/components/schemas/PaymentCoverageRequestResource'
+            result:
+               description: |
+                  Result of the coverage check :
+                  - true: the payment can be covered
+                  - false: the payment cannot be covered
+               type: boolean
+               example: true
+            _links:
+               $ref: '#/components/schemas/PaymentCoverageReportLinks'
+      Beneficiary:
+         description: Specification of a beneficiary
+         type: object
+         required:
+         - creditor
+         - creditorAgent
+         properties:
+            id:
+               type: string
+               description: Id of the beneficiary
+               pattern: ^([a-zA-Z0-9 \/\-?:\()\.,']{1,35})$
+            isTrusted:
+               description: |
+                  The ASPSP having not implemented the trusted beneficiaries list must not set this flag.
+                  Otherwise, the ASPSP indicates whether or not the beneficiary has been registered by the PSU within the trusted beneficiaries list.
+                  - true: the beneficiary is actually a trusted beneficiary (when set by ASPSP)
+                  - false: the beneficiary is not a trusted beneficiary
+                  The PISP may set this flag to "true" to indicate that the PSU considers the beneficiary as trusted and to be inserted within the trusted beneficiaries list, as far as this feature was implemented by the ASPSP.
+                  - true: the beneficiary should be registered as a trusted beneficiary (when set by PISP)
+               type: boolean
+            creditorAgent:
+               $ref: '#/components/schemas/FinancialInstitutionIdentification'
+            creditor:
+               $ref: '#/components/schemas/PartyIdentification'
+            creditorAccount:
+               $ref: '#/components/schemas/AccountIdentification'
+         example: null
+      HalBeneficiaries:
+         description: HYPERMEDIA structure used for returning the list of the whitelisted
+            beneficiaries
+         type: object
+         required:
+         - beneficiaries
+         - _links
+         properties:
+            beneficiaries:
+               type: array
+               description: List of trusted beneficiaries
+               items:
+                  $ref: '#/components/schemas/Beneficiary'
+            _links:
+               $ref: '#/components/schemas/BeneficiariesLinks'
+      gatewayErrors:
+         type: string
+         properties:
+            title:
+               type: string
+            detail:
+               type: string
+   headers:
+      correlationIdHeader:
+         description: Correlation header to be set in a request and retrieved in the
+            relevant response
+         schema:
+            type: string
