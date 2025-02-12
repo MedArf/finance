@@ -1,0 +1,113 @@
+/* ============================= */
+/* General Styles */
+/* ============================= */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 20px;
+}
+
+/* ============================= */
+/* Accounting Dashboard Styles */
+/* ============================= */
+.accounting-dashboard {
+    display: flex;
+    flex-direction: column;
+    max-width: 800px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Tabs for switching views */
+.dashboard-tabs {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.dashboard-tab {
+    padding: 8px 12px;
+    cursor: pointer;
+    background: #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.dashboard-tab.active {
+    background: #007bff;
+    color: white;
+}
+
+/* ============================= */
+/* Accounting Entry Styles */
+/* ============================= */
+.accounting-entry {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Main entry row */
+.entry {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Colors for income/expense */
+.income {
+    color: green;
+}
+
+.expense {
+    color: red;
+}
+
+/* Properties section */
+.properties {
+    display: flex;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+/* Button Styles */
+.property-btn {
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    cursor: pointer;
+    border: none;
+    color: white;
+}
+
+/* Button Colors */
+.category {
+    background: blue;
+}
+
+.subcategory {
+    background: green;
+}
+
+.from {
+    background: orange;
+}
+
+.to {
+    background: purple;
+}
+
+/* Button Hover Effects */
+.property-btn:hover {
+    opacity: 0.8;
+}

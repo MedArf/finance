@@ -158,7 +158,7 @@ setup(
     # maintainers, and where to support the project financially. The key is
     # what's used to render the link text on PyPI.
     project_urls={  # Optional
-        "Bug Reports": "https://github.com/MedArf/shuttle_service/issues",
-        "Source": "https://github.com/MedArf/shuttle_service",
+        "Bug Reports": "https://github.com/MedArf/finance`/issues",
+        "Source": "https://github.com/MedArf/finance",
     },
 )

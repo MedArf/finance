@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounting Dashboard</title>
+    <link rel="stylesheet" href="static/style.css">
+    <script src="components/accounting-entry.js"></script>
+    <script src="components/accounting-dashboard.js"></script>
+</head>
+<body>
+    <accounting-dashboard>
+        <accounting-entry reference="INV-001" amount="1200.00" category="Sales" subcategory="Online" from="Client A" to="Company X"></accounting-entry>
+        <accounting-entry reference="EXP-002" amount="-300.00" category="Marketing" subcategory="Ads" from="Company X" to="Agency Z"></accounting-entry>
+    </accounting-dashboard>
+</body>
+</html>

@@ -1,8 +1,9 @@
 from flask import Flask
 from app.routes import setup_routes
 from flask_admin import Admin
-from model.db_engine import get_db_engine
-from model.init_data import init_db
+from flask_admin.contrib.sqla import ModelView
+from model.db_engine import get_db_engine, init_db
+from model.models import User
 from sqlalchemy.orm import Session
 
 
@@ -22,6 +23,7 @@ def get_app():
     return app
 
 def main():
-    init_admin()
     init_db()
+    init_admin()
+    app.run(debug=True)
 
