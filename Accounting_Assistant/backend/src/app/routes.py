@@ -14,12 +14,14 @@ def setup_routes(app):
     def static_files(path):
         print(path)
         return send_file(os.path.join(app.root_path, '../../..', 'frontend/components', path))
-    @app.route("/api/entries")
+    @app.route("/api/entries?user_id=1")
+    @post
     #eventually will call for api based on te user
     def get_entries():
-        with Session(get_db_engine()) as session:
-            json_entries = get_entries()
-            return jsonify([entry.to_dict() for entry in entries])
+        user_id = request.args.get('user_id')
+        accounting_entries = statement_formatter.get_entries(user_id)
+        request.post()
+        return render_template('index.html', accounting_entries=accounting_entries)
 
    # @app.route('/components/<path:filename>')
   #  def static_files(filename):
