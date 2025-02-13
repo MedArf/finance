@@ -1,7 +1,7 @@
 import os
 from flask import request, jsonify, send_file
 from model.db_engine import get_db_engine
-from api
+from api import statement_formatter
 from sqlalchemy.orm import Session
 
 def setup_routes(app):
@@ -18,6 +18,7 @@ def setup_routes(app):
     #eventually will call for api based on te user
     def get_entries():
         with Session(get_db_engine()) as session:
+            json_entries = get_entries()
             return jsonify([entry.to_dict() for entry in entries])
 
    # @app.route('/components/<path:filename>')
