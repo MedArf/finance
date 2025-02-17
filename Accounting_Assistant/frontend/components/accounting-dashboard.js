@@ -14,8 +14,9 @@ class AccountingDashboard extends HTMLElement {
         try {
             //TODO: get user id from cookie
             const userId = 1
-            const response = await fetch("/api/entries");
+            const response = await fetch("/api/entries?user_id=" + userId);
             this.state.entries = await response.json();
+
             this.renderEntries();
         } catch (error) {
             console.error("Error fetching entries:", error);
@@ -25,6 +26,7 @@ class AccountingDashboard extends HTMLElement {
     render() {
         this.shadowRoot.innerHTML = `
             <link rel="stylesheet" href="style.css">
+						<custom-sidebar></custom-sidebar>
             <div class="accounting-dashboard">
                 <div class="dashboard-tabs">
                     <span class="dashboard-tab active" data-view="list">List View</span>
